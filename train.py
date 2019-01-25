@@ -3,7 +3,6 @@
 PPO: Proximal Policy Optimization
 with data parallelism
 """
-
 import chtrain_ant as gym
 import numpy as np
 from policy import Policy
@@ -11,6 +10,7 @@ from value_function import NNValueFunction
 import scipy.signal
 from utils import Logger, Scaler
 from datetime import datetime
+import os
 import argparse
 import signal
 from multiprocessing import Pool
@@ -43,7 +43,7 @@ def init_gym(env_name, render):
         number of observation dimensions (int)
         number of action dimensions (int)
     """
-    env = gym.Init(env_name, render)
+    env = gym.Model(render)
     obs_dim = env.observation_space.shape[0]
     act_dim = env.action_space.shape[0]
 
@@ -264,10 +264,15 @@ def main(env_name, num_episodes, gamma, lam, kl_targ, batch_size):
     obs_dim += 1  # add 1 to obs dimension for time step feature (see run_episode())
     now = datetime.utcnow().strftime("%b-%d_%H-%M-%S")  # create unique directories
     logger = Logger(logname=env_name, now=now)
+    #aigym_path = os.path.join('/tmp', env_name, now)
+    #env = wrappers.Monitor(env, aigym_path, force=True) 
     scaler = Scaler(obs_dim)
     val_func = NNValueFunction(obs_dim, True)
     policy = Policy(obs_dim, act_dim, kl_targ, True)
+    # run a few episodes of untrained policy to initialize scaler:
+    #run_policy(env, policy, scaler, logger, episodes=5)
     episode = 0
+    #capture = False
     while episode < num_episodes:
         trajectories = run_policy(env, policy, scaler, logger, episodes=batch_size)
         episode += len(trajectories)
@@ -297,6 +302,9 @@ if __name__ == "__main__":
     parser.add_argument('env_name', type=str, help='OpenAI Gym environment name')
     parser.add_argument('-n', '--num_episodes', type=int, help='Number of episodes to run',
                         default=1000)
+    #parser.add_argument('--renderON',action='store_true', default=False, dest='render', help='Toggle ON video')
+    #parser.add_argument('--renderOFF',action='store_false', default=False, dest='render', help='Toggle OFF video')
+    #parser.add_argument('-r', '--render', type=bool, help='Display Video', default=False)
     parser.add_argument('-g', '--gamma', type=float, help='Discount factor', default=0.995)
     parser.add_argument('-l', '--lam', type=float, help='Lambda for Generalized Advantage Estimation',
                         default=0.98)
