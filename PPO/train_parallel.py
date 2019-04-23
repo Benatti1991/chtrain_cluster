@@ -3,7 +3,10 @@
 PPO: Proximal Policy Optimization
 with data parallelism
 """
-import chtrain_ant as gym
+import os
+import sys
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'envs'))
+import chtrain as gym
 import numpy as np
 from policy import Policy
 from value_function import NNValueFunction
@@ -15,9 +18,14 @@ import signal
 from multiprocessing import Pool
 import run_episode
 
+"""" THIS VARIABLE TOGGLES TIME IN STATE. 
+ REMEMBER THAT CHECKPOINT ARE NOT COMPATIBLE IF THE NUMBER OF STATE IS INCONSISTENT
+ """
+time_state = False
+
 # guard in the main module to avoid creating subprocesses recursively.
 if __name__ == "__main__":
-    pool = Pool(processes=6)
+    pool = Pool(processes=20)
 
 class GracefulKiller:
     """ Gracefully exit program on CTRL-C """
@@ -43,7 +51,7 @@ def init_gym(env_name, render):
         number of observation dimensions (int)
         number of action dimensions (int)
     """
-    env = gym.Model(render)
+    env = gym.Init(env_name, render)
     obs_dim = env.observation_space.shape[0]
     act_dim = env.action_space.shape[0]
 
@@ -52,8 +60,8 @@ def init_gym(env_name, render):
 
 
 
-def run_policy(env, policy, scaler, logger, episodes):
-    """ Run policy and collect data 
+def run_policy(env, policy, scaler, logger, args, episodes):
+    """ Run policy and collect data
 
     Args:
         env: environment (object)
@@ -68,14 +76,23 @@ def run_policy(env, policy, scaler, logger, episodes):
         'rewards' : NumPy array of (un-discounted) rewards from episode
         'unscaled_obs' : NumPy array of (un-scaled) states from episode
     """
-
-    trajectories = pool.map(run_episode.run_parallel_episodes, range(episodes))
+    arg = []
+    for i in range(episodes):
+        arg.append(args)
+    trajectories = pool.map(run_episode.run_parallel_episodes, arg)
     
     unscaled = np.concatenate([t['unscaled_obs'] for t in trajectories])
     scaler.update(unscaled)  # update running statistics for scaling observations
+    prog = []
+    for t in trajectories:
+           prog.append(t['prog'])
+           t.pop('prog', None)
     logger.log({'_MeanReward': np.mean([t['rewards'].sum() for t in trajectories])})
-
-    return trajectories
+    epis_rew_sum = [t['rewards'].sum() for t in trajectories]
+    arr_epis_rew_sum = np.array([epis_rew_sum])
+    progr = np.hstack(prog)
+    progress = np.concatenate([progr, arr_epis_rew_sum], 0)
+    return trajectories, progress
 
 
 def discount(x, gamma):
@@ -204,22 +221,31 @@ def main(env_name, num_episodes, gamma, lam, kl_targ, batch_size):
         kl_targ: D_KL target for policy update [D_KL(pi_old || pi_new)
         batch_size: number of episodes per policy training batch
     """
+
     killer = GracefulKiller()
     env, obs_dim, act_dim = init_gym(env_name, False)
-    obs_dim += 1  # add 1 to obs dimension for time step feature (see run_episode())
+    if time_state:
+        obs_dim += 1  # add 1 to obs dimension for time step feature (see run_episode())
     now = datetime.utcnow().strftime("%b-%d_%H-%M-%S")  # create unique directories
     logger = Logger(logname=env_name, now=now)
-    #aigym_path = os.path.join('/tmp', env_name, now)
-    #env = wrappers.Monitor(env, aigym_path, force=True) 
-    scaler = Scaler(obs_dim)
-    val_func = NNValueFunction(obs_dim, True)
-    policy = Policy(obs_dim, act_dim, kl_targ, True)
-    # run a few episodes of untrained policy to initialize scaler:
-    #run_policy(env, policy, scaler, logger, episodes=5)
+
+    scaler = Scaler(obs_dim, env_name)
+    val_func = NNValueFunction(obs_dim, env_name, True)
+    arg = [obs_dim, act_dim, kl_targ, time_state, env_name]
+    policy = Policy(obs_dim, act_dim, kl_targ, env_name, True)
+
     episode = 0
-    #capture = False
+    #progresses = None
     while episode < num_episodes:
-        trajectories = run_policy(env, policy, scaler, logger, episodes=batch_size)
+        trajectories, progress = run_policy(env, policy, scaler, logger, arg,  episodes=batch_size)
+        #TODO change init setup
+        try:
+            progresses
+        except:
+            progresses = progress
+        else:
+            progresses = np.concatenate([progresses, progress], 1)
+                      
         episode += len(trajectories)
         add_value(trajectories, val_func)  # add estimated values to episodes
         add_disc_sum_rew(trajectories, gamma)  # calculated discounted sum of Rs
@@ -236,6 +262,9 @@ def main(env_name, num_episodes, gamma, lam, kl_targ, batch_size):
             if input('Terminate training (y/[n])? ') == 'y':
                 break
             killer.kill_now = False
+    path = os.path.join('savedmodel/'+env_name)
+    path = os.path.join(path, 'prog.dat')
+    progresses.dump(path)
     logger.close()
     policy.close_sess()
     val_func.close_sess()

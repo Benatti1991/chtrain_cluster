@@ -16,11 +16,12 @@ class Scaler(object):
         scale = 1 / (stddev + 0.1) / 3 (i.e. 3x stddev = +/- 1.0)
     """
 
-    def __init__(self, obs_dim):
+    def __init__(self, obs_dim, env_name):
         """
         Args:
             obs_dim: dimension of axis=1
         """
+        self.env_name = env_name
         self.vars = np.zeros(obs_dim)
         self.means = np.zeros(obs_dim)
         self.m = 0
@@ -36,8 +37,8 @@ class Scaler(object):
                variance-of-two-groups-given-known-group-variances-mean
         """
         if self.first_pass:
-            if os.path.isfile("./savedmodel/scaler.dat") :
-                   resumed = np.load("./savedmodel/scaler.dat")
+            if os.path.isfile("./savedmodel/"+self.env_name+"/scaler.dat") :
+                   resumed = np.load("./savedmodel/"+self.env_name+"/scaler.dat")
                    self.means = resumed[0: self.means.size]
                    self.vars = resumed[self.means.size : self.means.size+self.vars.size]
                    self.m = resumed[self.means.size+self.vars.size: resumed.size]
@@ -61,11 +62,14 @@ class Scaler(object):
             self.m += n
 
     def resume(self):
-        resumed = np.load("./savedmodel/scaler.dat")
-        self.means = resumed[0: self.means.size]
-        self.vars = resumed[self.means.size : self.means.size+self.vars.size]
-        self.m = resumed[self.means.size+self.vars.size: resumed.size]
-        self.first_pass = False
+        if os.path.isfile("./savedmodel/" + self.env_name + "/scaler.dat"):
+            resumed = np.load("./savedmodel/"+self.env_name+"/scaler.dat")
+            self.means = resumed[0: self.means.size]
+            self.vars = resumed[self.means.size : self.means.size+self.vars.size]
+            self.m = resumed[self.means.size+self.vars.size: resumed.size]
+            self.first_pass = False
+        else:
+            return 0
 
     def get(self):
         """ returns 2-tuple: (scale, offset) """
@@ -73,7 +77,7 @@ class Scaler(object):
  
     def save(self):
            """ Saves states variance and mean to resume learning"""
-           path = os.path.join('savedmodel')
+           path = os.path.join('savedmodel/'+self.env_name)
            path = os.path.join(path, 'scaler.dat')
            saved = np.concatenate ([self.means, self.vars])
            saved = np.append(saved, [self.m])
