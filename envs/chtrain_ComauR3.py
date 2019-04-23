@@ -22,7 +22,10 @@ import math
 import numpy as np
 #import sys, getopt
 import pychrono as chrono
-import pychrono.irrlicht as chronoirr
+try:
+   from pychrono import irrlicht as chronoirr
+except:
+   print('Could not import ChronoIrrlicht')
 
 # ---------------------------------------------------------------------
 #
@@ -301,6 +304,10 @@ class Model(object):
        
               if (self.self_coll < -1 or self.dist < 0.005 or self.numsteps *self.timestep>3):
                             self.isdone = True
+       def get_prog(self):
+          
+              return np.array([[self.numsteps *self.timestep], [self.dist]])
+
                                      
        def __del__(self):
               if (self.animate):

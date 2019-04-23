@@ -7,6 +7,7 @@ Created on Thu Jan 10 11:01:21 2019
 
 import chtrain_ant
 import chtrain_pendulum
+import chtrain_ComauR3
 
        
 def Init(env_name, render):
@@ -15,6 +16,10 @@ def Init(env_name, render):
                      
        elif env_name=='ChronoPendulum':
               return chtrain_pendulum.Model(render)
+       
+       elif env_name=='ChronoRacer3':
+              return chtrain_ComauR3.Model(render)
+       
        else: 
               print('Unvalid environment name')
                             
