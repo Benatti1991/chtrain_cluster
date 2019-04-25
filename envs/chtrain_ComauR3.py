@@ -302,7 +302,7 @@ class Model(object):
               return progress      """               
        def is_done(self):
        
-              if (self.self_coll < -1 or self.dist < 0.005 or self.numsteps *self.timestep>3):
+              if (self.self_coll < -1 or self.numsteps *self.timestep>3):
                             self.isdone = True
        def get_prog(self):
           
