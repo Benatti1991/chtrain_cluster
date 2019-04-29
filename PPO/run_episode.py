@@ -60,7 +60,7 @@ def run_episode(env, policy, scaler, time_state):
         if time_state:
             obs = np.append(obs, [[step]], axis=1)  # add time step feature TODO: check if this extra state is useful
         unscaled_obs.append(obs)
-        obs = (obs - offset) * scale  # center and scale observations TODO: check ifscaler is useful (it should be according to literature)
+        #obs = (obs - offset) * scale  # center and scale observations TODO: check ifscaler is useful (it should be according to literature)
         observes.append(obs)
         action = policy.sample(obs).reshape((1, -1)).astype(np.float64)
         actions.append(action)

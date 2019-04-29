@@ -6,7 +6,7 @@
 #SBATCH --ntasks-per-node=21
 #SBATCH --gres=gpu:tesla:1
 #SBATCH --mem=32G
-#SBATCH --time=10:05:00
+#SBATCH --time=07:05:00
 #SBATCH --partition=gpu
 #
 # Edit next line
