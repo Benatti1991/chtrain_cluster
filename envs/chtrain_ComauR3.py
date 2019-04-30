@@ -318,8 +318,8 @@ class Model(object):
        
        def ScreenCapture(self, interval):
               try: 
-                     self.myapplication.SetVideoself.framesave(True)
-                     self.myapplication.SetVideoself.framesaveInterval(interval)
+                     self.myapplication.SetVideoframeSave(True)
+                     self.myapplication.SetVideoframeSaveInterval(interval)
               except:
                      print('No ChIrrApp found. Cannot save video self.frames.')
                      
