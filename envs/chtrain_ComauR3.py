@@ -36,7 +36,7 @@ class Model(object):
               self.observation_space = np.empty([18,])
               self.action_space = np.zeros([6,])
               #TODO: check if targ is reachable
-              self.targ_init_pos = [-0.25,0.025,-0.25]
+              self.targ_init_pos = [-0.25,0.015,-0.25]
               self.fingerdist = chrono.ChVectorD(0,0.1117,0)
               #self.d_old = np.linalg.norm(self.Xtarg + self.Ytarg)
               self.robosystem = chrono.ChSystemNSC()
@@ -53,8 +53,8 @@ class Model(object):
               self.my_material = chrono.ChMaterialSurfaceNSC()
               self.my_material.SetFriction(0.5)
               self.my_material.SetDampingF(0.2)
-              self.my_material.SetCompliance (0.0005)
-              self.my_material.SetComplianceT(0.0005)
+              self.my_material.SetCompliance (0.0000001)
+              self.my_material.SetComplianceT(0.0000001)
               #m_visualization = "irrlicht"
               self.m_datapath = "../../../../../../codes/Chrono/Chrono_Source/data"
               chrono.SetChronoDataPath(self.m_datapath)       
@@ -79,8 +79,7 @@ class Model(object):
               print ("...loading done!");
               # Print exported items
               #for my_item in exported_items:
-              	#print (my_item.GetName())
-              self.robosystem = chrono.ChSystemNSC()		
+              	#print (my_item.GetName())		
               # Optionally set some solver parameters.
               #self.robosystem.SetMaxPenetrationRecoverySpeed(1.00)
               self.robosystem.SetSolverType(chrono.ChSolver.Type_BARZILAIBORWEIN);
@@ -214,14 +213,16 @@ class Model(object):
               # Floor Collision.
               self.targ_box.SetMaterialSurface(self.my_material)
               self.targ_box.GetCollisionModel().ClearModel()
-              self.targ_box.GetCollisionModel().AddBox(0.025, 0.025, 0.025, chrono.ChVectorD(0, 0, 0 ))
+              self.targ_box.GetCollisionModel().AddBox(0.015, 0.015, 0.015, chrono.ChVectorD(0, 0, 0 ))
               self.targ_box.GetCollisionModel().BuildModel()
               self.targ_box.SetCollide(True)    
               # Visualization shape
               targ_box_shape = chrono.ChBoxShape()
-              targ_box_shape.GetBoxGeometry().Size = chrono.ChVectorD(0.025, 0.025, 0.025)
-              targ_box_shape.SetColor(chrono.ChColor(1.0,0,0))
+              targ_box_shape.GetBoxGeometry().Size = chrono.ChVectorD(0.015, 0.015, 0.015)
+              col = chrono.ChColorAsset()
+              col.SetColor(chrono.ChColor(1.0,0,0))
               self.targ_box.GetAssets().push_back(targ_box_shape)
+              self.targ_box.GetAssets().push_back(col)
               self.robosystem.Add(self.targ_box)
               
               self.numsteps= 0
