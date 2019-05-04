@@ -162,6 +162,8 @@ class Model(object):
               self.base  = self.robosystem.SearchBody('Racer3_p01-3')
               self.biceps  = self.robosystem.SearchBody('Racer3_p03-1')
               self.forearm  = self.robosystem.SearchBody('Racer3_p05-1')
+              self.finger1 = self.robosystem.SearchBody('HAND_e_finger-1')
+              self.finger2 = self.robosystem.SearchBody('HAND_e_finger-2')
               
               for i in range(len(self.con_link)):
                      revolute = chrono.ChLinkLockRevolute() 
@@ -208,6 +210,8 @@ class Model(object):
               self.robosystem.Add(self.body_floor)
 
               self.targ_box = chrono.ChBody()
+              # UNset to grasp
+              self.targ_box.SetBodyFixed(True)
               self.targ_box.SetPos(chrono.ChVectorD(self.targ_init_pos[0], self.targ_init_pos[1], self.targ_init_pos[2]))
               self.targ_box.SetMaterialSurface(self.my_material)    
               # Floor Collision.
@@ -289,9 +293,10 @@ class Model(object):
               #Reduced stall cost to avoid joints at limit
               #joints_limit = joints_at_limit_cost * self.joint_at_limit
               self.self_coll =  0 if self.base.GetContactForce().Length()+ self.biceps.GetContactForce().Length() + self.forearm.GetContactForce().Length() == 0 else -1000
+              fing_con = - (self.finger1.GetContactForce().Length() + self.finger2.GetContactForce().Length())
               #progress = self.calc_progress()
               self.dist = np.linalg.norm([self.grip-self.targ])
-              rew = ( dist_coeff/(self.dist+0.0001)) + self.self_coll - electricity_cost*np.linalg.norm(self.ac)
+              rew = ( dist_coeff/(self.dist+0.0001)) + self.self_coll - electricity_cost*np.linalg.norm(self.ac) + fing_con
               return rew
 
        """
