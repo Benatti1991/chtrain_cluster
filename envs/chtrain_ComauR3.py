@@ -36,7 +36,7 @@ class Model(object):
               self.observation_space = np.empty([18,])
               self.action_space = np.zeros([6,])
               #TODO: check if targ is reachable
-              self.targ_init_pos = [-0.25,0.015,-0.25]
+              
               self.fingerdist = chrono.ChVectorD(0,0.1117,0)
               #self.d_old = np.linalg.norm(self.Xtarg + self.Ytarg)
               self.robosystem = chrono.ChSystemNSC()
@@ -208,7 +208,11 @@ class Model(object):
               body_floor_texture.SetTextureFilename(texpath)
               self.body_floor.GetAssets().push_back(body_floor_texture)     
               self.robosystem.Add(self.body_floor)
-
+              r = np.random.rand(2,1)
+              rho = float(0.35+0.1*r[0])
+              theta = float((r[1]-0.5)*(math.pi/4))
+              #self.targ_init_pos = [-0.25,0.015,-0.25]
+              self.targ_init_pos = [-rho*math.cos(theta),0.015,rho*math.sin(theta)]
               self.targ_box = chrono.ChBody()
               # UNset to grasp
               self.targ_box.SetBodyFixed(True)
