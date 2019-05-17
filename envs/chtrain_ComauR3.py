@@ -300,7 +300,7 @@ class Model(object):
               fing_con = - (self.finger1.GetContactForce().Length() + self.finger2.GetContactForce().Length())
               #progress = self.calc_progress()
               self.dist = np.linalg.norm([self.grip-self.targ])
-              rew = ( dist_coeff/(self.dist+0.0001)) + self.self_coll - electricity_cost*np.linalg.norm(self.ac) + fing_con
+              rew = ( dist_coeff/(self.dist+0.0001)) + self.self_coll + fing_con - electricity_cost*np.linalg.norm(np.multiply(self.ac, self.q_dot_mot)) 
               return rew
 
        """
