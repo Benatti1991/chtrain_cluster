@@ -277,9 +277,12 @@ class Model(object):
        
               self.q_mot   = np.zeros([6,])
               self.q_dot_mot   = np.zeros([6,])
+              joint_at_limit   = np.asarray([])
               for i, r in enumerate(self.revs): 
                      self.q_mot[i] = r.GetRelAngle()
                      self.q_dot_mot[i] = r.GetRelWvel().z
+                     joint_at_limit = np.append(joint_at_limit,  [ r.GetLimit_Rz().GetMax()   < self.q_mot[i]   or r.GetLimit_Rz().GetMin()   > self.q_mot[i] ] )
+              self.joint_at_limit = np.count_nonzero(np.abs(joint_at_limit))
               gripV = self.hand.GetPos() + self.hand.GetRot().Rotate(self.fingerdist)
               self.grip = np.asarray([gripV.x, gripV.y, gripV.z])
               tarpos = self.targ_box.GetPos()
@@ -291,16 +294,16 @@ class Model(object):
               electricity_cost     = 0.001    # cost for using self.motors -- this parameter should be carefully tuned against reward for making progress, other values less improtant
               #stall_torque_cost    = -0.1    # cost for running electric current through a motor even at zero rotational speed, small
               dist_coeff = 1
-              #joints_at_limit_cost = -0.2    # discourage stuck joints
+              joints_at_limit_cost = -2    # discourage stuck joints
               
               #power_cost  = electricity_cost  * float(np.abs(self.ac*self.q_dot_mot).mean())  # let's assume we have DC motor with controller, and reverse current braking. BTW this is the formula of motor power
               #Reduced stall cost to avoid joints at limit
-              #joints_limit = joints_at_limit_cost * self.joint_at_limit
+              joints_limit = joints_at_limit_cost * self.joint_at_limit
               self.self_coll =  0 if self.base.GetContactForce().Length()+ self.biceps.GetContactForce().Length() + self.forearm.GetContactForce().Length() == 0 else -1000
               fing_con = - (self.finger1.GetContactForce().Length() + self.finger2.GetContactForce().Length())
               #progress = self.calc_progress()
               self.dist = np.linalg.norm([self.grip-self.targ])
-              rew = ( dist_coeff/(self.dist+0.0001)) + self.self_coll + fing_con - electricity_cost*np.linalg.norm(np.multiply(self.ac, self.q_dot_mot)) 
+              rew = ( dist_coeff/(self.dist+0.0001)) + self.self_coll + fing_con - electricity_cost*np.linalg.norm(np.multiply(self.ac, self.q_dot_mot)) + joints_limit
               return rew
 
        """
