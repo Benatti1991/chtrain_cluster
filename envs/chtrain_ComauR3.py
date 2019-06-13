@@ -210,10 +210,10 @@ class Model(object):
               self.robosystem.Add(self.body_floor)
               #r = np.random.rand(2,1)
               r = np.asarray([0.5,0.5])
-              rho = float(0.35+0.1*r[0])+0.12
-              theta = float((r[1]-0.5)*(math.pi/4))
+              #rho = float(0.35+0.1*r[0])+0.12
+              #theta = float((r[1]-0.5)*(math.pi/4))
               #self.targ_init_pos = [-0.25,0.015,-0.25]
-              self.targ_init_pos = [-rho*math.cos(theta),0.015,rho*math.sin(theta)]
+              self.targ_init_pos = [-0.52 + (r[1]*0.05)  ,  0.015    , r[1]*0.05 ]
               self.targ_box = chrono.ChBody()
               # UNset to grasp
               self.targ_box.SetBodyFixed(True)
