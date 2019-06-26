@@ -301,7 +301,7 @@ class Model(object):
               #Reduced stall cost to avoid joints at limit
               joints_limit = joints_at_limit_cost * self.joint_at_limit
               self.self_coll =  0 if self.base.GetContactForce().Length()+ self.biceps.GetContactForce().Length() + self.forearm.GetContactForce().Length() == 0 else -1000
-              fing_con =  0 if self.finger1.GetContactForce().Length()+ self.finger2.GetContactForce().Length() == 0 else -50 - (self.finger1.GetContactForce().Length() + self.finger2.GetContactForce().Length())
+              fing_con =  0 if self.finger1.GetContactForce().Length()+ self.finger2.GetContactForce().Length() == 0 else -25 - 0.5*(self.finger1.GetContactForce().Length() + self.finger2.GetContactForce().Length())
               #progress = self.calc_progress()
               self.dist = np.linalg.norm([self.grip-self.targ])
               rew = ( dist_coeff/(self.dist+0.0001)) + self.self_coll + fing_con - electricity_cost*np.linalg.norm(np.multiply(self.ac, self.q_dot_mot)) + joints_limit
