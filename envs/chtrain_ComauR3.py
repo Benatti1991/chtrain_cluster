@@ -216,7 +216,7 @@ class Model(object):
               self.targ_init_pos = [-0.52 + 2*(r[0]*0.05)  ,  0.015    , 2*r[1]*0.05 ]
               self.targ_box = chrono.ChBody()
               # UNset to grasp
-              self.targ_box.SetBodyFixed(True)
+              self.targ_box.SetBodyFixed(False)
               self.targ_box.SetPos(chrono.ChVectorD(self.targ_init_pos[0], self.targ_init_pos[1], self.targ_init_pos[2]))
               self.targ_box.SetMaterialSurface(self.my_material)    
               # Floor Collision.
