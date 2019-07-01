@@ -172,7 +172,7 @@ class Model(object):
               orange.SetColor(chrono.ChColor(255/255,77/255,6/255))
               black = chrono.ChColorAsset()
               black.SetColor(chrono.ChColor(0,0,0))
-              for body in self.bodies[:-1]:
+              """for body in self.bodies[:-1]:
                   assets = body.GetAssets()
                   for ast in assets:
                       ass_lev = chrono.CastToChAssetLevel(ast)
@@ -181,7 +181,7 @@ class Model(object):
               assets = self.hand.GetAssets()
               for ast in assets:
                       ass_lev = chrono.CastToChAssetLevel(ast)
-                      ass_lev.GetAssets().push_back(black) 
+                      ass_lev.GetAssets().push_back(black) """
 
 
               
