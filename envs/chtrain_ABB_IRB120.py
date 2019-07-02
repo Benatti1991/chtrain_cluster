@@ -320,7 +320,7 @@ class Model(object):
               #power_cost  = electricity_cost  * float(np.abs(self.ac*self.q_dot_mot).mean())  # let's assume we have DC motor with controller, and reverse current braking. BTW this is the formula of motor power
               #Reduced stall cost to avoid joints at limit
               joints_limit = joints_at_limit_cost * self.joint_at_limit
-              self.self_coll =  0 if self.base.GetContactForce().Length()+ self.biceps.GetContactForce().Length() + self.forearm.GetContactForce().Length() == 0 else -1000
+              self.self_coll =  0 if self.base.GetContactForce().Length()+ self.biceps.GetContactForce().Length() + self.forearm.GetContactForce().Length() + self.hand.GetContactForce().Length() == 0 else -1000
               fing_con =  0 if self.finger1.GetContactForce().Length()+ self.finger2.GetContactForce().Length() == 0 else -25 - 0.5*(self.finger1.GetContactForce().Length() + self.finger2.GetContactForce().Length())
               #progress = self.calc_progress()
               self.dist = np.linalg.norm([self.grip-self.targ])
