@@ -315,7 +315,7 @@ class Model(object):
               electricity_cost     = 0.001    # cost for using self.motors -- this parameter should be carefully tuned against reward for making progress, other values less improtant
               #stall_torque_cost    = -0.1    # cost for running electric current through a motor even at zero rotational speed, small
               dist_coeff = 1
-              joints_at_limit_cost = -2    # discourage stuck joints
+              joints_at_limit_cost = -20    # discourage stuck joints
               
               #power_cost  = electricity_cost  * float(np.abs(self.ac*self.q_dot_mot).mean())  # let's assume we have DC motor with controller, and reverse current braking. BTW this is the formula of motor power
               #Reduced stall cost to avoid joints at limit
