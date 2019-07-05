@@ -104,8 +104,8 @@ class Model(object):
               #self.maxRot = [170, 135, 90, 200, 125, 2700] # °
               #self.minRot = [-170, -95, -155, -200, -125, -2700] # °
               # MODIFIED self.limits
-#              self.maxRot = [170, 135, 90, 179, 100, 179] # ° --> COMAU
-#              self.minRot = [-170, -95, -155, -179, -100, -179] # ° --> COMAU
+#              self.maxRot = [170, 135, 90, 179, 50, 79] # ° --> COMAU
+#              self.minRot = [-170, -95, -155, -179, -50, -79] # ° --> COMAU
               self.maxRot = [165, 110, 70, 160, 120, 179] # ° --> ABB
               self.minRot = [-165, -110, -110, -160, -100, -179] # ° --> ABB
               #self.maxT = np.asarray([28, 28, 28, 7.36, 7.36, 4.41])
